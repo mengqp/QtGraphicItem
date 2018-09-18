@@ -15,6 +15,7 @@
 #include <QObject>
 #include <QGraphicsItem>
 #include <QPainter>
+#include <QPushButton>
 
 /*******************************************************************************
  *功能描述:关于装置的图元
@@ -28,8 +29,25 @@ class CGraphicsItemDev : public QObject, public QGraphicsItem
     virtual ~CGraphicsItemDev(void);
 
     QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+
+
+  public:
+    // 设置报警数量
+    void SetAlarmNum( unsigned char num );
+    // 设置状态
+    void setState( unsigned char  state );
+    // 设置故障数量
+    void SetFaultNum( unsigned char num );
+    // 设置图片
+    void SetStrImage( QString str );
 
   private:
-    bool flash;
+    unsigned char m_byAlarmNum;
+    unsigned char m_byFaultNum;
+    QString m_strImage;
+    QPixmap m_pixImage ;
+
 };

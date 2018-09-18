@@ -14,6 +14,7 @@
 
 #include "Widget.h"
 #include "GraphicsItemDev.hpp"
+#include <QDebug>
 
 /*******************************************************************************
  * 功能描述:构造函数
@@ -25,11 +26,27 @@ CWidget::CWidget (QWidget *parent) : QWidget ( parent )
     this->setObjectName("EM761_BV2");
 
     scene = new QGraphicsScene;
-    scene->setSceneRect(-200,-200,400,400);
+    // scene->setSceneRect(-200,-200,400,400);
+    scene->setSceneRect(0,0,400,400);
 
     CGraphicsItemDev *item = new CGraphicsItemDev;
     scene->addItem(item);
-    item->setPos((qrand()%int(scene->sceneRect().width()))-200,(qrand()%int(scene->sceneRect().height()))-200);
+    int xr = qrand();
+    int yr = qrand();
+
+    int x = (xr%int(scene->sceneRect().width()));
+    int y = (yr%int(scene->sceneRect().height()));
+
+    qDebug() << xr << yr <<x << y << scene->sceneRect().width() << scene->sceneRect().height();
+
+    item->setPos( 0, 0);
+    item->SetAlarmNum( 1 );
+    item->SetFaultNum( 2 );
+    item->SetStrImage( "./EM720LCD.JPG");
+
+
+
+    // item->setPos((qrand()%int(scene->sceneRect().width()))-200,(qrand()%int(scene->sceneRect().height()))-200);
 
     QGraphicsView *view = new QGraphicsView( this );
     view->setScene(scene);
