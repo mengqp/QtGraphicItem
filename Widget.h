@@ -1,7 +1,7 @@
 /*******************************************************************************
- * 文件名:GraphicItemDev.hpp
- * 文件描述:自己制做的关于装置的图元，只供自己使用
- * 创建日期:2018/09/18 11:02:10
+ * 文件名:Widget.h
+ * 文件描述:widget
+ * 创建日期:2018/07/26 13:45:12
  * 版本：Ver1.0
  *
  * Copyright © 2018 - 2018 mengqp.
@@ -11,25 +11,33 @@
  *
  *
  ******************************************************************************/
+#ifndef WIDGET_H
+#define WIDGET_H
 
-#include <QObject>
-#include <QGraphicsItem>
-#include <QPainter>
+#include <QWidget>
+#include <QGraphicsItemAnimation>
+#include <QGraphicsScene>
+#include <QGraphicsView>
 
 /*******************************************************************************
- *功能描述:关于装置的图元
+ *功能描述:
  *******************************************************************************/
-class CGraphicsItemDev : public QObject, public QGraphicsItem
+class CWidget : public QWidget
 {
   public:
     /* constructor */
-    explicit CGraphicsItemDev( QObject *parent = 0 );
+    explicit CWidget(QWidget *parent = 0);
     /* distructor */
-    virtual ~CGraphicsItemDev(void);
-
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    virtual ~CWidget(void);
 
   private:
-    bool flash;
+    QGraphicsScene *scene;
 };
+
+
+#endif /* WIDGET_H */
+
+// This file is set to c + + mode when you set the following content to the bottom and reopen the file
+// Local Variables:
+// mode: c++
+// End:
