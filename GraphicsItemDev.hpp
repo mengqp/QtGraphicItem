@@ -43,10 +43,14 @@ class CGraphicsItemDev : public QObject, public QGraphicsItem
     void SetFaultNum( unsigned char num );
     // 设置图片
     void SetStrImage( QString str );
+    // 设置名字
+    void SetStrName( QString str );
 
   private:
     unsigned char m_byAlarmNum;
     unsigned char m_byFaultNum;
+    QString m_DevName;
+    unsigned char m_byNamePos;
     QString m_strImage;
     QPixmap m_pixImage ;
 

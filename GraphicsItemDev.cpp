@@ -12,6 +12,17 @@
  *
  ******************************************************************************/
 #include "GraphicsItemDev.hpp"
+
+static const unsigned char ITEM_NAME_LEN = 6;  // 显示名字的长度
+static const unsigned char ITEM_HEIGHT = 80;           // 图元的高
+static const unsigned char ITEM_WIDTH = 60;            // 图元的高
+static const unsigned char ITEM_IMAGE_HEIGHT = ITEM_HEIGHT / 2 ;    // 图元的图片高
+static const unsigned char ITEM_NAME_HEIGHT = ITEM_HEIGHT / 4 ;    // 图元的名字高
+static const unsigned char ITEM_NUM_HEIGHT = ITEM_HEIGHT / 4 ;    // 图元的报警和故障数量高
+static const unsigned char ITEM_NUM_WIDTH = ITEM_WIDTH / 2 ;    // 图元的报警和故障数量高
+static const QColor ALARM_COLOR = Qt::red ;    // 图元的报警和故障数量高
+static const QColor FAULT_COLOR = QColor(211 , 124 , 9 );    // 图元的报警和故障数量高
+
 // #include <QMouseButton>
 /*******************************************************************************
  * 功能描述:构造函数
@@ -45,7 +56,7 @@ CGraphicsItemDev::~CGraphicsItemDev (void)
 QRectF CGraphicsItemDev::boundingRect(void) const
 {
     qreal adjust = 0;
-    return QRectF(0, 0,40+adjust,60+adjust);
+    return QRectF(0, 0,ITEM_WIDTH+adjust,ITEM_HEIGHT+adjust);
 }   /*-------- end class CGraphicsItemDev method boundingRect -------- */
 
 /*------------------------------------------------------------------------------
@@ -66,27 +77,53 @@ void CGraphicsItemDev::paint(QPainter *painter,
     // QPixmap image("./EM720LCD.JPG");
     // m_button.setGeometry( -20, -20, 40 , 40 );
     // m_button.setIcon( image );
-    painter->drawPixmap( 0, 0, 40, 40, m_pixImage );
+    painter->drawPixmap( 0, 0, ITEM_WIDTH, ITEM_IMAGE_HEIGHT, m_pixImage );
+    QString name = m_DevName;
+
+    printf("%d\n", name.length());
+    if ( name.length() > ITEM_NAME_LEN )
+    {
+        if ( name.length() - m_byNamePos <= ITEM_NAME_LEN )
+        {
+            name = name.mid( m_byNamePos, -1 );
+            m_byNamePos = 0;
+        }
+        else
+        {
+            name = name.mid( m_byNamePos, ITEM_NAME_LEN );
+            m_byNamePos += 1;
+        }
+    }
+    painter->drawText(0, ITEM_IMAGE_HEIGHT ,ITEM_WIDTH,ITEM_NAME_HEIGHT,Qt::AlignCenter, name);
 
     painter->setPen(Qt::NoPen);
     if ( m_byAlarmNum > 0 )
     {
-        painter->setBrush(Qt::red);
-        painter->setPen(QColor(Qt::red));
-        painter->drawText(0, 40 ,20,20,Qt::AlignLeft, QString::number( m_byAlarmNum, 10 ));
+        painter->setBrush( ALARM_COLOR );
+        painter->setPen( ALARM_COLOR );
+        painter->drawText(0,
+                          ITEM_IMAGE_HEIGHT + ITEM_NAME_HEIGHT ,
+                          ITEM_NUM_WIDTH,
+                          ITEM_NUM_HEIGHT,
+                          Qt::AlignLeft, QString::number( m_byAlarmNum, 10 ));
     }
 
     if( m_byFaultNum > 0 )
     {
         if ( m_byAlarmNum == 0 )
         {
-            painter->setBrush(QColor(211 , 124 , 9 ));
+            painter->setBrush( FAULT_COLOR );
         }
-        painter->setPen(QColor(211 , 124 , 9 ));
-        painter->drawText(20, 40 ,20,20,Qt::AlignRight, QString::number( m_byFaultNum, 10 ));
+        painter->setPen(FAULT_COLOR );
+        painter->drawText(ITEM_NUM_WIDTH,
+                          ITEM_IMAGE_HEIGHT + ITEM_NAME_HEIGHT ,
+                          ITEM_NUM_WIDTH,
+                          ITEM_NUM_HEIGHT,
+                          Qt::AlignRight, QString::number( m_byFaultNum, 10 ));
+        // painter->drawText(20, 60 ,25,20,Qt::AlignRight, QString::number( m_byFaultNum, 10 ));
     }
 
-    painter->drawEllipse(15,35,10,10);
+    painter->drawEllipse(ITEM_WIDTH/2 -5, ITEM_WIDTH/2 +5,10,10);
 }   /*-------- end class CGraphicsItemDev method paint -------- */
 
 /*------------------------------------------------------------------------------
@@ -153,3 +190,21 @@ void CGraphicsItemDev::SetStrImage( QString str )
     m_strImage = str;
     m_pixImage = QPixmap(str);
 }   /*-------- end class CGraphicsItemDev method SetStrImage -------- */
+
+/*------------------------------------------------------------------------------
+ * 类:CGraphicsItemDev
+ * 函数名:SetStrName
+ * 功能描述:设置名字
+ * 参数: QString str
+ * 被调用:
+ * 返回值:void
+ ------------------------------------------------------------------------------*/
+void CGraphicsItemDev::SetStrName( QString str )
+{
+    if ( str.isEmpty() )
+    {
+        return;
+    }
+
+    m_DevName = str;
+}   /*-------- end class CGraphicsItemDev method SetStrName -------- */

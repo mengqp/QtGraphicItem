@@ -31,17 +31,18 @@ CWidget::CWidget (QWidget *parent) : QWidget ( parent )
 
     CGraphicsItemDev *item = new CGraphicsItemDev;
     scene->addItem(item);
-    int xr = qrand();
-    int yr = qrand();
+    // int xr = qrand();
+    // int yr = qrand();
 
-    int x = (xr%int(scene->sceneRect().width()));
-    int y = (yr%int(scene->sceneRect().height()));
+    // int x = (xr%int(scene->sceneRect().width()));
+    // int y = (yr%int(scene->sceneRect().height()));
 
-    qDebug() << xr << yr <<x << y << scene->sceneRect().width() << scene->sceneRect().height();
+    // qDebug() << xr << yr <<x << y << scene->sceneRect().width() << scene->sceneRect().height();
 
     item->setPos( 0, 0);
     item->SetAlarmNum( 1 );
     item->SetFaultNum( 2 );
+    item->SetStrName( "EM721FA12345678" );
     item->SetStrImage( "./EM720LCD.JPG");
 
 
