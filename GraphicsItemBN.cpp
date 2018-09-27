@@ -11,17 +11,17 @@
  *
  *
  ******************************************************************************/
-#include "GraphicsItemDev.hpp"
+#include "GraphicsItemBN.hpp"
 #include <QStyleOptionGraphicsItem>
+#include <QPainterPath>
 
-static const unsigned char ITEM_NAME_LEN = 8;  // 显示名字的长度
-static const unsigned char ITEM_HEIGHT = 80;           // 图元的高
-static const unsigned char ITEM_WIDTH = 80;            // 图元的高
-static const unsigned char ITEM_IMAGE_WIDTH = ITEM_WIDTH / 4 * 3 ;    // 图元的图片高
-static const unsigned char ITEM_IMAGE_HEIGHT = ITEM_HEIGHT / 8 * 5 ;    // 图元的图片高
-static const unsigned char ITEM_NAME_HEIGHT = ITEM_HEIGHT / 8 * 3 ;    // 图元的名字高
-// static const unsigned char ITEM_NUM_HEIGHT = ITEM_HEIGHT / 4 ;    // 图元的报警和故障数量高
-// static const unsigned char ITEM_NUM_WIDTH = ITEM_WIDTH / 2 ;    // 图元的报警和故障数量高
+static const unsigned char ITEM_NAME_LEN = 12;  // 显示名字的长度
+static const unsigned char ITEM_HEIGHT = 40;           // 图元的高
+static const unsigned char ITEM_WIDTH = 160;            // 图元的高
+static const unsigned char ITEM_IMAGE_HEIGHT = ITEM_HEIGHT / 2 ;    // 图元的图片高
+static const unsigned char ITEM_NAME_HEIGHT = ITEM_HEIGHT / 4 ;    // 图元的名字高
+static const unsigned char ITEM_NUM_HEIGHT = ITEM_HEIGHT / 4 ;    // 图元的报警和故障数量高
+static const unsigned char ITEM_NUM_WIDTH = ITEM_WIDTH / 2 ;    // 图元的报警和故障数量高
 static const QColor ALARM_COLOR = Qt::red ;    // 图元的报警和故障数量高
 static const QColor FAULT_COLOR = QColor(211 , 124 , 9 );    // 图元的报警和故障数量高
 static const QColor NORMAL_COLOR = Qt::green ;    // 图元的报警和故障数量高
@@ -30,40 +30,38 @@ static const QColor NORMAL_COLOR = Qt::green ;    // 图元的报警和故障数
 /*******************************************************************************
  * 功能描述:构造函数
  ******************************************************************************/
-CGraphicsItemDev::CGraphicsItemDev ( QObject *parent  )
-        : QObject( parent )
+CGraphicsItemBN::CGraphicsItemBN ( QWidget *parent  )
+        : QWidget( parent )
 {
     //可点击
     this->setFlag( QGraphicsItem::ItemIsSelectable, true );
 
-    m_byAlarmNum = 0;
-    m_byFaultNum = 0;
 }   /*-------- end 构造函数 -------- */
 
 /*******************************************************************************
  * 功能描述:析构函数
  ******************************************************************************/
-CGraphicsItemDev::~CGraphicsItemDev (void)
+CGraphicsItemBN::~CGraphicsItemBN (void)
 {
 
 }   /*-------- end 析构函数 -------- */
 
 /*------------------------------------------------------------------------------
- * 类:CGraphicsItemDev
+ * 类:CGraphicsItemBN
  * 函数名:boundingRect
  * 功能描述:
  * 参数:void
  * 被调用:
  * 返回值:QRectF
  ------------------------------------------------------------------------------*/
-QRectF CGraphicsItemDev::boundingRect(void) const
+QRectF CGraphicsItemBN::boundingRect(void) const
 {
     qreal adjust = 0;
     return QRectF(0, 0,ITEM_WIDTH+adjust,ITEM_HEIGHT+adjust);
-}   /*-------- end class CGraphicsItemDev method boundingRect -------- */
+}   /*-------- end class CGraphicsItemBN method boundingRect -------- */
 
 /*------------------------------------------------------------------------------
- * 类:CGraphicsItemDev
+ * 类:CGraphicsItemBN
  * 函数名:paint
  * 功能描述:画图
  * 参数:QPainter *painter
@@ -72,9 +70,9 @@ QRectF CGraphicsItemDev::boundingRect(void) const
  * 被调用:
  * 返回值:void
  ------------------------------------------------------------------------------*/
-void CGraphicsItemDev::paint(QPainter *painter,
-                             const QStyleOptionGraphicsItem *option,
-                             QWidget *widget )
+void CGraphicsItemBN::paint(QPainter *painter,
+                            const QStyleOptionGraphicsItem *option,
+                            QWidget *widget )
 {
 
     // 画整个方框的颜色
@@ -84,12 +82,30 @@ void CGraphicsItemDev::paint(QPainter *painter,
     {
         painter->setBrush( Qt::gray );
     }
-    painter->drawRect(0, 0, ITEM_WIDTH, ITEM_HEIGHT); //x,y,w,h
+    // painter->drawRect(0, 0, ITEM_WIDTH, ITEM_HEIGHT); //x,y,w,h
+    QPainterPath path;
+    path.addRoundRect( QRectF(10,10,ITEM_WIDTH-20,ITEM_HEIGHT-20), 10 , 10 );
+    painter->drawPath( path );
 
-    painter->drawPixmap( 10, 10, ITEM_IMAGE_WIDTH, ITEM_IMAGE_HEIGHT, m_pixImage );
+    if ( m_byAlarmNum > 0 )
+    {
+        painter->setBrush( ALARM_COLOR );
+        painter->setPen( ALARM_COLOR );
+    }
+    else if( m_byFaultNum > 0 )
+    {
+        painter->setBrush( FAULT_COLOR );
+        painter->setPen(FAULT_COLOR );
+    }
+    else
+    {
+        painter->setBrush( NORMAL_COLOR );
+        painter->setPen(NORMAL_COLOR );
+    }
+    painter->drawEllipse(ITEM_WIDTH - 20, 10 ,10,10);
+
+    painter->setPen( Qt::black );
     QString name = m_DevName;
-
-    printf("%d\n", name.length());
     if ( name.length() > ITEM_NAME_LEN )
     {
         if ( name.length() - m_byNamePos <= ITEM_NAME_LEN )
@@ -103,84 +119,65 @@ void CGraphicsItemDev::paint(QPainter *painter,
             m_byNamePos += 1;
         }
     }
-    painter->setPen(Qt::NoPen);
-    painter->drawText(0, ITEM_IMAGE_HEIGHT ,ITEM_WIDTH,ITEM_NAME_HEIGHT,Qt::AlignCenter, name);
 
-    if ( m_byAlarmNum > 0 )
-    {
-        painter->setBrush( ALARM_COLOR );
-        painter->setPen( ALARM_COLOR );
-    }
-    else if( m_byFaultNum > 0 )
-    {
-        painter->setBrush( FAULT_COLOR );
-        painter->setPen(FAULT_COLOR );
-
-    }
-    else
-    {
-        painter->setBrush( NORMAL_COLOR );
-        painter->setPen(NORMAL_COLOR );
-    }
-
-    painter->drawEllipse(ITEM_WIDTH -20, 10,10,10);
-}   /*-------- end class CGraphicsItemDev method paint -------- */
+    painter->drawText(0, 0 ,ITEM_WIDTH,ITEM_HEIGHT,Qt::AlignCenter, name);
+}   /*-------- end class CGraphicsItemBN method paint -------- */
 
 /*------------------------------------------------------------------------------
- * 类:CGraphicsItemDev
+ * 类:CGraphicsItemBN
  * 函数名:mouseReleaseEvent
  * 功能描述:鼠标松开事件
  * 参数: QGraphicsSceneMouseEvent *event
  * 被调用:
  * 返回值:void
  ------------------------------------------------------------------------------*/
-void CGraphicsItemDev::mouseReleaseEvent( QGraphicsSceneMouseEvent *event )
+void CGraphicsItemBN::mouseReleaseEvent( QGraphicsSceneMouseEvent *event )
 {
     printf("event\n");
 
     m_byAlarmNum+=1;
     m_byFaultNum+=2;
 
-    update();
+    // update();
     // this->hide();
 
-}   /*-------- end class CGraphicsItemDev method mouseReleaseEvent -------- */
+}   /*-------- end class CGraphicsItemBN method mouseReleaseEvent -------- */
 
 /*------------------------------------------------------------------------------
- * 类:CGraphicsItemDev
+ * 类:CGraphicsItemBN
  * 函数名:SetAlarmNum
  * 功能描述:设置报警数量
  * 参数: unsigned char num
  * 被调用:
  * 返回值:void
  ------------------------------------------------------------------------------*/
-void CGraphicsItemDev::SetAlarmNum( unsigned char num )
+void CGraphicsItemBN::SetAlarmNum( unsigned char num )
 {
     m_byAlarmNum = num;
-}   /*-------- end class CGraphicsItemDev method SetAlarmNum -------- */
+}   /*-------- end class CGraphicsItemBN method SetAlarmNum -------- */
 
 /*------------------------------------------------------------------------------
- * 类:CGraphicsItemDev
+ * 类:CGraphicsItemBN
  * 函数名:SetFaultNum
  * 功能描述:设置故障数量
  * 参数: unsigned char num
  * 被调用:
  * 返回值:void
  ------------------------------------------------------------------------------*/
-void CGraphicsItemDev::SetFaultNum( unsigned char num )
+void CGraphicsItemBN::SetFaultNum( unsigned char num )
 {
     m_byFaultNum = num;
-}   /*-------- end class CGraphicsItemDev method SetFaultNum -------- */
+}   /*-------- end class CGraphicsItemBN method SetFaultNum -------- */
 
 /*------------------------------------------------------------------------------
- * 类:CGraphicsItemDev
+ * 类:CGraphicsItemBN
  * 函数名:SetStrImage
  * 功能描述:设置图片
  * 参数: QString str
  * 被调用:
  * 返回值:void
  ------------------------------------------------------------------------------*/
-void CGraphicsItemDev::SetStrImage( QString str )
+void CGraphicsItemBN::SetStrImage( QString str )
 {
     if ( str.isEmpty() )
     {
@@ -189,17 +186,17 @@ void CGraphicsItemDev::SetStrImage( QString str )
 
     m_strImage = str;
     m_pixImage = QPixmap(str);
-}   /*-------- end class CGraphicsItemDev method SetStrImage -------- */
+}   /*-------- end class CGraphicsItemBN method SetStrImage -------- */
 
 /*------------------------------------------------------------------------------
- * 类:CGraphicsItemDev
+ * 类:CGraphicsItemBN
  * 函数名:SetStrName
  * 功能描述:设置名字
  * 参数: QString str
  * 被调用:
  * 返回值:void
  ------------------------------------------------------------------------------*/
-void CGraphicsItemDev::SetStrName( QString str )
+void CGraphicsItemBN::SetStrName( QString str )
 {
     if ( str.isEmpty() )
     {
@@ -207,4 +204,4 @@ void CGraphicsItemDev::SetStrName( QString str )
     }
 
     m_DevName = str;
-}   /*-------- end class CGraphicsItemDev method SetStrName -------- */
+}   /*-------- end class CGraphicsItemBN method SetStrName -------- */

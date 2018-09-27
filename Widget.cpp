@@ -14,6 +14,8 @@
 
 #include "Widget.h"
 #include "GraphicsItemDev.hpp"
+#include "GraphicsItemBN.hpp"
+#include "GraphicsItemBF.hpp"
 #include <QDebug>
 
 /*******************************************************************************
@@ -45,6 +47,20 @@ CWidget::CWidget (QWidget *parent) : QWidget ( parent )
     item->SetStrName( "EM721FA12345678" );
     item->SetStrImage( "./EM720LCD.JPG");
 
+    CGraphicsItemBN *BNitem = new CGraphicsItemBN;
+    BNitem->setPos( 160, 100);
+    BNitem->SetAlarmNum( 1 );
+    BNitem->SetFaultNum( 2 );
+    BNitem->SetStrName( "BN1234567890" );
+    scene->addItem(BNitem);
+
+    CGraphicsItemBF *BFitem = new CGraphicsItemBF;
+    BFitem->setPos( 20, 100);
+    BFitem->SetAlarmNum( 1 );
+    BFitem->SetFaultNum( 2 );
+    BFitem->SetMode( 0 );
+    BFitem->SetStrName( "BF1234567890" );
+    scene->addItem(BFitem);
 
 
     // item->setPos((qrand()%int(scene->sceneRect().width()))-200,(qrand()%int(scene->sceneRect().height()))-200);
